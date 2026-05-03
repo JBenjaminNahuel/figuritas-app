@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figuritas PRO</title>
+<style>
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:white;
+  margin:0;
+}
+.container{
+  max-width:400px;
+  margin:auto;
+  padding:15px;
+}
+.card{
+  background:#1e293b;
+  padding:15px;
+  border-radius:15px;
+  margin-bottom:15px;
+}
+.row{
+  display:flex;
+  gap:10px;
+}
+.box{
+  background:#334155;
+  padding:10px;
+  border-radius:10px;
+  flex:1;
+  text-align:center;
+}
+input{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border:none;
+  border-radius:8px;
+}
+button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#22c55e;
+  color:white;
+  font-weight:bold;
+  margin-top:10px;
+}
+.logout{
+  background:#ef4444;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div class="card" id="loginBox">
+  <h2>🔐 Iniciar sesión</h2>
+  <input type="text" id="usuario" placeholder="Tu nombre">
+  <button onclick="login()">Entrar</button>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;">
+
+<div class="card">
+  <h2>📘 Figuritas</h2>
+  <input type="number" id="total" placeholder="Total (ej: 994)">
+  <input type="number" id="tengo" placeholder="Tengo">
+  <input type="number" id="repetidas" placeholder="Repetidas">
+  <input type="number" id="brillantes" placeholder="Brillantes (tenés)">
+  <input type="number" id="totalBrillantes" placeholder="Total brillantes">
+  <button onclick="calcular()">Guardar</button>
+  <button class="logout" onclick="logout()">Cerrar sesión</button>
+</div>
+
+<div class="card">
+  <h3>Resumen</h3>
+
+  <div class="row">
+    <div class="box">
+      <p>Completado</p>
+      <h2 id="porcentaje">0%</h2>
+    </div>
+    <div class="box">
+      <p>Total</p>
+      <h2 id="totalRes">0</h2>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="box">
+      <p>Me faltan</p>
+      <h2 id="faltan">0</h2>
+    </div>
+    <div class="box">
+      <p>Tengo</p>
+      <h2 id="tengoRes">0</h2>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="box">
+      <p>Repetidas</p>
+      <h2 id="repeRes">0</h2>
+    </div>
+    <div class="box">
+      <p>Brillantes</p>
+      <h2 id="brilloRes">0/0</h2>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+let usuarioActual = "";
+
+function login(){
+  const user = document.getElementById('usuario').value;
+  if(!user) return alert("Poné un nombre");
+
+  usuarioActual = user;
+  localStorage.setItem("usuario", user);
+
+  document.getElementById('loginBox').style.display = "none";
+  document.getElementById('app').style.display = "block";
+
+  cargarDatos();
+}
+
+function logout(){
+  localStorage.removeItem("usuario");
+  location.reload();
+}
+
+function calcular(){
+  const total = parseInt(document.getElementById('total').value)||0;
+  const tengo = parseInt(document.getElementById('tengo').value)||0;
+  const repetidas = parseInt(document.getElementById('repetidas').value)||0;
+  const brillantes = parseInt(document.getElementById('brillantes').value)||0;
+  const totalBrillantes = parseInt(document.getElementById('totalBrillantes').value)||0;
+
+  const faltan = total - tengo;
+  const porcentaje = total ? Math.round((tengo/total)*100) : 0;
+
+  document.getElementById('porcentaje').innerText = porcentaje + "%";
+  document.getElementById('totalRes').innerText = total;
+  document.getElementById('faltan').innerText = faltan;
+  document.getElementById('tengoRes').innerText = tengo;
+  document.getElementById('repeRes').innerText = repetidas;
+  document.getElementById('brilloRes').innerText = brillantes + "/" + totalBrillantes;
+
+  const datos = {total,tengo,repetidas,brillantes,totalBrillantes};
+  localStorage.setItem("datos_" + usuarioActual, JSON.stringify(datos));
+}
+
+function cargarDatos(){
+  const data = JSON.parse(localStorage.getItem("datos_" + usuarioActual));
+  if(data){
+    document.getElementById('total').value = data.total;
+    document.getElementById('tengo').value = data.tengo;
+    document.getElementById('repetidas').value = data.repetidas;
+    document.getElementById('brillantes').value = data.brillantes;
+    document.getElementById('totalBrillantes').value = data.totalBrillantes;
+    calcular();
+  }
+}
+
+window.onload = ()=>{
+  const user = localStorage.getItem("usuario");
+  if(user){
+    usuarioActual = user;
+    document.getElementById('loginBox').style.display = "none";
+    document.getElementById('app').style.display = "block";
+    cargarDatos();
+  }
+}
+</script>
+
+</body>
+</html>
